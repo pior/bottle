@@ -1393,9 +1393,9 @@ def static_file(filename, root, guessmime=True, mimetype=None, download=False):
 
 
 def conditionnal_response(response, header={}, etag=None, lastmodified=None):
-    """ Opens a file in a safe way and returns a HTTPError object with status
-        code 200, 305, 401 or 404. Sets Content-Type, Content-Length and
-        Last-Modified header. Obeys If-Modified-Since header and HEAD requests.
+    """ Returns a HTTPError object with status code 200, 305, 401 or 404.
+        Sets Etag and Last-Modified header. Obeys If-None-Match and
+        If-Modified-Since header and HEAD requests.
     """
     if etag:
         cached_etag = request.environ.get('HTTP_IF_NONE_MATCH')
