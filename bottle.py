@@ -1398,13 +1398,13 @@ def conditionnal_response(response, header={}, etag=None, lastmodified=None):
         Last-Modified header. Obeys If-Modified-Since header and HEAD requests.
     """
     if etag:
-        cached_etag = bottle.request.environ.get('HTTP_IF_NONE_MATCH')
+        cached_etag = request.environ.get('HTTP_IF_NONE_MATCH')
         if cached_etag == etag:
             return HTTPResponse(status=304, header=header)
         header['Etag'] = etag
 
     if lastmodified:
-        ims = bottle.request.environ.get('HTTP_IF_MODIFIED_SINCE')
+        ims = request.environ.get('HTTP_IF_MODIFIED_SINCE')
         if ims:
             ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
             ims = parse_date(ims)
