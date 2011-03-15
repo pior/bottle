@@ -1396,7 +1396,7 @@ def conditionnal_response(response, header={}, etag=None, lastmodified=None):
         if ims:
             ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
             ims = parse_date(ims)
-            if ims is not None and ims >= lastmodified:
+            if ims is not None and ims >= parse_date(lastmodified):
                 header['Date'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
                 return HTTPResponse(status=304, header=header)
         header['Last-Modified'] = lastmodified
