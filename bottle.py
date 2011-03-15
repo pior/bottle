@@ -1375,7 +1375,8 @@ def static_file(filename, root, guessmime=True, mimetype=None, download=False):
     if download:
         header['Content-Disposition'] = 'attachment; filename="%s"' % download
 
-    header['Content-Length'] = os.stat(filename).st_size
+    stats = os.stat(filename)
+    header['Content-Length'] = stats.st_size
     lm = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(stats.st_mtime))
     return conditionnal_response(open(filename, 'rb'), header=header, lastmodified=lm)
 
