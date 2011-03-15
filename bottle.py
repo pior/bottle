@@ -1392,7 +1392,31 @@ def static_file(filename, root, guessmime=True, mimetype=None, download=False):
         return HTTPResponse(open(filename, 'rb'), header=header)
 
 
+def conditionnal_response(response, header={}, etag=None, lastmodified=None):
+    """ Opens a file in a safe way and returns a HTTPError object with status
+        code 200, 305, 401 or 404. Sets Content-Type, Content-Length and
+        Last-Modified header. Obeys If-Modified-Since header and HEAD requests.
+    """
+    if etag:
+        cached_etag = bottle.request.environ.get('HTTP_IF_NONE_MATCH')
+        if cached_etag == etag:
+            return HTTPResponse(status=304, header=header)
+        header['Etag'] = etag
 
+    if lastmodified:
+        ims = bottle.request.environ.get('HTTP_IF_MODIFIED_SINCE')
+        if ims:
+            ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
+            ims = parse_date(ims)
+            if ims is not None and ims >= lastmodified:
+                header['Date'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
+                return HTTPResponse(status=304, header=header)
+        header['Last-Modified'] = lastmodified
+
+    if request.method == 'HEAD':
+        return HTTPResponse('', header=header)
+    else:
+        return HTTPResponse(response, header=header)
 
 
 
