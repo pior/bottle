@@ -1375,21 +1375,9 @@ def static_file(filename, root, guessmime=True, mimetype=None, download=False):
     if download:
         header['Content-Disposition'] = 'attachment; filename="%s"' % download
 
-    stats = os.stat(filename)
+    header['Content-Length'] = os.stat(filename).st_size
     lm = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(stats.st_mtime))
-    header['Last-Modified'] = lm
-    ims = request.environ.get('HTTP_IF_MODIFIED_SINCE')
-    if ims:
-        ims = ims.split(";")[0].strip() # IE sends "<date>; length=146"
-        ims = parse_date(ims)
-        if ims is not None and ims >= int(stats.st_mtime):
-            header['Date'] = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
-            return HTTPResponse(status=304, header=header)
-    header['Content-Length'] = stats.st_size
-    if request.method == 'HEAD':
-        return HTTPResponse('', header=header)
-    else:
-        return HTTPResponse(open(filename, 'rb'), header=header)
+    return conditionnal_response(open(filename, 'rb'), header=header, lastmodified=lm)
 
 
 def conditionnal_response(response, header={}, etag=None, lastmodified=None):
